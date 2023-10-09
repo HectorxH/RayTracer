@@ -11,10 +11,14 @@ impl Ray {
         self.origin + self.direction * t
     }
 
-    pub fn color(&self) -> Color {
+    pub fn bg_color(&self) -> Color {
         let unit_dir = self.direction.normalized();
         let a = 0.5 * (unit_dir.y + 1.0);
 
-        (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+        Color::new(1.0, 1.0, 1.0).lerp(&Color::new(0.5, 0.7, 1.0), a)
+    }
+
+    pub fn hit_color(&self) -> Color {
+        Color::new(1.0, 0.0, 0.0)
     }
 }

@@ -139,7 +139,7 @@ impl<T: VecLike> Float3<T> {
         self.x.powi(2) + self.y.powi(2) + self.z.powi(2)
     }
 
-    pub fn dot(&self, rhs: &Self) -> Float {
+    pub fn dot<V: VecLike>(&self, rhs: &Float3<V>) -> Float {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
@@ -150,6 +150,10 @@ impl<T: VecLike> Float3<T> {
             z: self.x * rhs.y - self.y * rhs.x,
             _type: PhantomData,
         }
+    }
+
+    pub fn lerp<V: VecLike>(&self, value: &Float3<V>, p: f64) -> Self {
+        (1.0 - p) * self + p * value
     }
 
     pub fn normalized(&self) -> Self {
