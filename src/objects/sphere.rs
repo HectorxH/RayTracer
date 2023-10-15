@@ -1,4 +1,6 @@
-use crate::vector::Point3;
+use std::rc::Rc;
+
+use crate::{material::Material, vector::Point3};
 
 use super::{Hit, HitData, Interval};
 
@@ -6,6 +8,7 @@ use super::{Hit, HitData, Interval};
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
+    pub material: Material,
 }
 
 impl Hit for Sphere {
@@ -22,14 +25,19 @@ impl Hit for Sphere {
 
         let mut t = (-b - sqrt_disc) / a;
         if !t_range.contains(t) {
-            t = t + (2.0 * sqrt_disc) / a;
+            t += (2.0 * sqrt_disc) / a;
         }
 
         if t_range.contains(t) && discriminant >= 0.0 {
             let point = ray.at(t);
             let normal = ((point - self.center) / self.radius).into();
 
-            Some(HitData { point, normal, t })
+            Some(HitData {
+                point,
+                normal,
+                material: &self.material,
+                t,
+            })
         } else {
             None
         }

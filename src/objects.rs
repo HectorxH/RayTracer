@@ -1,6 +1,7 @@
 use std::{fmt::Debug, rc::Rc};
 
 use crate::{
+    material::Material,
     ray::Ray,
     vector::{Point3, Vec3},
 };
@@ -8,8 +9,25 @@ use crate::{
 pub mod sphere;
 pub use sphere::*;
 
+pub trait Hit: Debug {
+    fn hit(&self, ray: &Ray, t_range: Interval) -> Option<HitData>;
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Interval(pub f64, pub f64);
+
+#[derive(Debug, Clone, Copy)]
+pub struct HitData<'a> {
+    pub point: Point3,
+    pub normal: Vec3,
+    pub t: f64,
+    pub material: &'a Material,
+}
+
+#[derive(Debug)]
+pub struct World {
+    pub objects: Vec<Rc<dyn Hit>>,
+}
 
 impl Interval {
     pub const UNIVERSE: Self = Self(f64::NEG_INFINITY, f64::INFINITY);
@@ -20,22 +38,16 @@ impl Interval {
     pub fn contains(&self, value: f64) -> bool {
         self.0 < value && value < self.1
     }
-}
 
-pub trait Hit: Debug {
-    fn hit(&self, ray: &Ray, t_range: Interval) -> Option<HitData>;
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct HitData {
-    pub point: Point3,
-    pub normal: Vec3,
-    pub t: f64,
-}
-
-#[derive(Debug)]
-pub struct World {
-    pub objects: Vec<Rc<dyn Hit>>,
+    pub fn clamp(&self, value: f64) -> f64 {
+        if value < self.0 {
+            self.0
+        } else if self.1 < value {
+            self.1
+        } else {
+            value
+        }
+    }
 }
 
 impl Hit for World {
